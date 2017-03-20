@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--     <link rel="stylesheet" media="all" href="../../aboutmybike/public/css/selekter.css" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+
+  <script src="../../aboutmybike/public/javascripts/selekter.js"></script> -->
+  <style>
+    .crop-target-wrapper {
+      position: relative;
+    }
+  </style>
+
+  <link rel="stylesheet" media="all" href="../selekter/selekter.css" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+  <script src="../selekter/selekter.js"></script>
+
+  <script>
+
+    // function updateImgAreaSelectFields(selection) {
+    //   var scale = parseFloat($('#scale').val());
+    //   // have these reflect the values of the actual photo size. This could get confusing.
+    //   $('#xValue').val(parseInt(selection.x1 * scale));
+    //   $('#yValue').val(parseInt(selection.y1 * scale));
+    //   $('#cropWidth').val(parseInt((selection.x2 - selection.x1) * scale));
+    //   $('#cropHeight').val(parseInt((selection.y2 - selection.y1) * scale));
+
+    //   console.log('realistic? x:' + $('#xValue').val() + ' y:' + $('#yValue').val()+ ' cropWidth:' + $('#cropWidth').val() + ' cropHeight:' + $('#cropHeight').val() );
+    // }
+
+    $(document).ready(function() {
+      $('#uploadForm').selekter({
+        img: $('#cropTarget')
+      });
+    });
+
+  </script>
+
+</head>
+
+<body>
+
+<form id="uploadForm">
+<div class="crop-target-wrapper">
+    <img alt="Selected image to crop" id="cropTarget" src="./large_screenshots/b.png" />
+</div>
+<input type="hidden" name="scale" value="" />
+<input type="hidden" name="xValue" value="">
+<input type="hidden" name="yValue" value="">
+<input type="hidden" name="cropWidth" value="">
+<input type="hidden" name="cropHeight" value="">
+
+</form>
+
+</body>
+
+
+</html>
+

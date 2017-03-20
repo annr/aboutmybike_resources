@@ -18,17 +18,15 @@ var AWS = require('aws-sdk');
 
 // Initialize the Amazon Cognito credentials provider
 AWS.config.region = 'us-west-1'; // Region
-// AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-//    IdentityPoolId: 'eu-west-1:e4c24108-5050-42f8-ac0b-761c46aa947f',
-// });
 
 sendFeedback = function() {
     var sns = new AWS.SNS();
     var params = {
-        Message: 'oh hey',
+        Message: 'is this working????',
         Subject: 'Browser SNS publish - contact form',
         TopicArn: 'arn:aws:sns:us-west-1:619254428467:amb-contact-form'
     };
+
     sns.publish(params, function(err, data) {
         if (err) console.log(err, err.stack); // an error occurred
         else     console.log(data);           // successful response

@@ -1,0 +1,9 @@
+INSERT INTO reason (label) VALUES('fun');
+INSERT INTO reason (label) VALUES('commute');
+INSERT INTO reason (label) VALUES('work');
+INSERT INTO reason (label) VALUES('fitness');
+INSERT INTO reason (label) VALUES('social');
+INSERT INTO reason (label) VALUES('style');
+INSERT INTO reason (label) VALUES('adventure');
+INSERT INTO reason (label) VALUES('thrill');
+INSERT INTO reason (label) VALUES('freedom');

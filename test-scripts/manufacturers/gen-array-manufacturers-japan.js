@@ -1,8 +1,8 @@
 
 
--- generated from https://en.wikipedia.org/wiki/List_of_Japanese_bicycle_brands_and_manufacturers
+//-- generated from https://en.wikipedia.org/wiki/List_of_Japanese_bicycle_brands_and_manufacturers
 
--- with this code:
+//-- with this code:
 brands = [];
 //var insert_str = "INSERT INTO manufacturer (name, country) VALUES ('";
 //inserts = "";
@@ -25,6 +25,6 @@ for( var i = 0; i < rows.length; i++) {
 console.log(JSON.stringify(brands));
 //copy(inserts);
 
--- two or three brands I needed to hand-correct. 
+//-- two or three brands I needed to hand-correct.
 
 // to make this properly you need to hand-correct the output.

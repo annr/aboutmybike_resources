@@ -9,17 +9,19 @@ var s3 = new AWS.S3();
 
 var bucketName = 'amb-storage';
 
-fs.readFile('./45.jpg', (err, data) => {
-  if (err) throw err;
-  console.log('gonna do it');
-  var params = {Bucket: bucketName, Key: '45.jpg', Body: data};
+var fileName = './45.jpg';
+
+// fs.readFile('./45.jpg', (err, data) => {
+//   if (err) throw err;
+//   console.log('gonna do it');
+  var params = {Bucket: bucketName, Key: '555.jpg', Body: fileName};
   s3.putObject(params, function(err, data) {
     if (err)
       console.log(err)
     else
       console.log("Successfully uploaded file.");
   });
-});
+// });
 
 //s3.createBucket({Bucket: bucketName}, function() {
 

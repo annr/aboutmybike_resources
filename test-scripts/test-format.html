@@ -1,0 +1,231 @@
+<html>
+
+
+<body>
+
+<pre style="margin: 0; line-height: 125%"><span style="color: #888888">/* </span>
+<span style="color: #888888">  Bike photo validation and upload</span>
+<span style="color: #888888">*/</span>
+$(<span style="color: #007020">document</span>).ready(<span style="color: #008800; font-weight: bold">function</span>() {
+
+  <span style="color: #008800; font-weight: bold">function</span> appendAlert(msg, elem, type) {
+    <span style="color: #888888">// remove any existing alert warnings</span>
+    $(<span style="background-color: #fff0f0">'.alert'</span>).remove();
+    <span style="color: #008800; font-weight: bold">if</span>(<span style="color: #333333">!</span>elem) {
+      elem <span style="color: #333333">=</span> $(<span style="background-color: #fff0f0">'.alert-area'</span>)[<span style="color: #0000DD; font-weight: bold">0</span>];
+    }
+    $(elem).append(<span style="background-color: #fff0f0">'&lt;div class="alert alert-'</span> <span style="color: #333333">+</span> (type <span style="color: #333333">||</span> <span style="background-color: #fff0f0">'warning'</span>) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">'" role="alert"&gt;'</span> <span style="color: #333333">+</span> msg <span style="color: #333333">+</span> <span style="background-color: #fff0f0">'&lt;/div&gt;'</span>);
+  }
+  
+  $(<span style="background-color: #fff0f0">"#uploadForm"</span>).submit(<span style="color: #008800; font-weight: bold">function</span>( event ) {
+    event.preventDefault();
+    $(<span style="background-color: #fff0f0">'.alert'</span>).remove();
+
+    <span style="color: #888888">// remove crop box if nec. </span>
+
+    <span style="color: #008800; font-weight: bold">var</span> form <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">this</span>;
+    <span style="color: #008800; font-weight: bold">var</span> uploadAction <span style="color: #333333">=</span> $(form).attr(<span style="background-color: #fff0f0">'action'</span>);
+    <span style="color: #008800; font-weight: bold">var</span> formData <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">new</span> FormData(form);
+
+    $(<span style="background-color: #fff0f0">'.upload-target-wrapper .progress'</span>).css(<span style="background-color: #fff0f0">'visibility'</span>, <span style="background-color: #fff0f0">'visible'</span>);
+
+    <span style="color: #008800; font-weight: bold">if</span>($(<span style="background-color: #fff0f0">'#selectAreaModal'</span>).is(<span style="background-color: #fff0f0">':visible'</span>)) {
+      $(<span style="background-color: #fff0f0">'#selectAreaModal'</span>).modal(<span style="background-color: #fff0f0">'hide'</span>);
+    }
+
+    $.ajax({
+      url<span style="color: #333333">:</span> uploadAction,
+      type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">'POST'</span>,
+      data<span style="color: #333333">:</span> formData,
+      cache<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">false</span>,
+      contentType<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">false</span>,
+      processData<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">false</span>,
+      xhr<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">function</span>() {
+        <span style="color: #008800; font-weight: bold">let</span> myXhr <span style="color: #333333">=</span> $.ajaxSettings.xhr();
+        <span style="color: #008800; font-weight: bold">return</span> myXhr;
+      },
+      success<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">function</span>(data) {
+        $(<span style="background-color: #fff0f0">'.upload-target-wrapper .progress'</span>).css(<span style="background-color: #fff0f0">'visibility'</span>, <span style="background-color: #fff0f0">'hidden'</span>);
+        appendAlert(<span style="background-color: #fff0f0">'Successfully stored your bike photo.'</span>);
+        <span style="color: #008800; font-weight: bold">if</span>($(<span style="background-color: #fff0f0">'input[name=bike_id]'</span>).val() <span style="color: #333333">===</span> <span style="background-color: #fff0f0">''</span>) {
+          $(<span style="background-color: #fff0f0">'input[name=bike_id]'</span>).val(data.id);
+        }
+        <span style="color: #888888">// make sure preview uses cache-busted new file</span>
+        $(<span style="background-color: #fff0f0">'#upload-target'</span>).attr(<span style="background-color: #fff0f0">'src'</span>, data.photoPath<span style="color: #333333">+</span><span style="background-color: #fff0f0">'?bust='</span><span style="color: #333333">+</span>(<span style="color: #008800; font-weight: bold">new</span> <span style="color: #007020">Date</span>()).getTime());
+      },
+      error<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">function</span>(err) {
+        <span style="color: #888888">// be transparent and output error.</span>
+        <span style="color: #888888">// but how to you get specific error and not whole page?</span>
+        appendAlert(<span style="background-color: #fff0f0">'Error attaching bike photo. Please try again later.'</span>, <span style="color: #008800; font-weight: bold">null</span>, <span style="background-color: #fff0f0">'danger'</span>);
+      }
+    });
+  });
+
+  <span style="color: #008800; font-weight: bold">function</span> filePreview(file, callback) {
+    <span style="color: #008800; font-weight: bold">if</span> (file) {
+      <span style="color: #008800; font-weight: bold">let</span> reader <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">new</span> FileReader();
+      reader.readAsDataURL(file);
+      reader.onload <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">function</span> (e) {
+        <span style="color: #008800; font-weight: bold">var</span> image <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">new</span> Image();
+        image.src <span style="color: #333333">=</span> e.target.result;
+        <span style="color: #888888">// load the image to get height and width. </span>
+        <span style="color: #888888">// if oblong, open modal.</span>
+        image.onload <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">function</span>() {
+          <span style="color: #888888">// if ratio is close to 4:3, just crop.</span>
+          <span style="color: #888888">// technically is ratio between 3:2 (0.666667) and 4:5 (0.8)</span>
+          <span style="color: #008800; font-weight: bold">if</span>(<span style="color: #008800; font-weight: bold">this</span>.height<span style="color: #333333">/</span><span style="color: #008800; font-weight: bold">this</span>.width <span style="color: #333333">&gt;</span> <span style="color: #6600EE; font-weight: bold">0.66</span> <span style="color: #333333">&amp;&amp;</span> <span style="color: #008800; font-weight: bold">this</span>.height<span style="color: #333333">/</span><span style="color: #008800; font-weight: bold">this</span>.width <span style="color: #333333">&lt;</span> <span style="color: #6600EE; font-weight: bold">0.801</span>) {
+            $(<span style="background-color: #fff0f0">'#upload-target'</span>).attr(<span style="background-color: #fff0f0">'src'</span>, e.target.result);
+            $(<span style="background-color: #fff0f0">'#upload-target'</span>).removeClass(<span style="background-color: #fff0f0">'upload-placeholder'</span>);
+            $(<span style="background-color: #fff0f0">"#uploadForm"</span>).submit();
+          } <span style="color: #008800; font-weight: bold">else</span> {
+            $(<span style="background-color: #fff0f0">'#actualWidth'</span>).val(<span style="color: #008800; font-weight: bold">this</span>.width);
+            $(<span style="background-color: #fff0f0">'#actualHeight'</span>).val(<span style="color: #008800; font-weight: bold">this</span>.height);
+            $(<span style="background-color: #fff0f0">'#selectAreaModal'</span>).modal(<span style="background-color: #fff0f0">'show'</span>);
+            $(<span style="background-color: #fff0f0">'#crop-target'</span>).attr(<span style="background-color: #fff0f0">'src'</span>, e.target.result);
+          }
+        };
+      }
+    } 
+  }
+
+  $(<span style="background-color: #fff0f0">'#selectAreaModal'</span>).on(<span style="background-color: #fff0f0">'shown.bs.modal'</span>, <span style="color: #008800; font-weight: bold">function</span> (e) {
+    $(<span style="background-color: #fff0f0">'#scale'</span>).val(<span style="color: #007020">parseInt</span>($(<span style="background-color: #fff0f0">'#actualWidth'</span>).val())<span style="color: #333333">/</span>$(<span style="background-color: #fff0f0">'#crop-target'</span>).width());
+    <span style="color: #008800; font-weight: bold">var</span> points <span style="color: #333333">=</span> prepareCropPoints($(<span style="background-color: #fff0f0">'#crop-target'</span>).width(), $(<span style="background-color: #fff0f0">'#crop-target'</span>).height());
+    <span style="color: #008800; font-weight: bold">var</span> db <span style="color: #333333">=</span> addDraggableBox($(<span style="background-color: #fff0f0">'#crop-target'</span>), {
+      x1<span style="color: #333333">:</span> points.x1,
+      y1<span style="color: #333333">:</span> points.y1,
+      x2<span style="color: #333333">:</span> points.x2,
+      y2<span style="color: #333333">:</span> points.y2,
+    });
+
+    <span style="color: #008800; font-weight: bold">var</span> options <span style="color: #333333">=</span> {
+      container<span style="color: #333333">:</span> $(<span style="background-color: #fff0f0">'#crop-target'</span>),
+      onSelectCrop<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">function</span> (values) {
+        $(<span style="background-color: #fff0f0">'#xValue'</span>).val(values.xValue);
+        $(<span style="background-color: #fff0f0">'#yValue'</span>).val(values.yValue);
+      }
+    };
+   
+    <span style="color: #008800; font-weight: bold">if</span> (isOblong($(<span style="background-color: #fff0f0">'#crop-target'</span>).height()<span style="color: #333333">/</span>$(<span style="background-color: #fff0f0">'#crop-target'</span>).width())) {
+      <span style="color: #888888">// it can move vertically.</span>
+      options.orientation <span style="color: #333333">=</span> <span style="background-color: #fff0f0">'vertical'</span>;
+      options.maxVert <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.round($(<span style="background-color: #fff0f0">'#crop-target'</span>).offset().top <span style="color: #333333">+</span> $(<span style="background-color: #fff0f0">'#crop-target'</span>).height() <span style="color: #333333">-</span> db.height());
+      <span style="color: #888888">//console.log($('#crop-target').height() + ' :: ' + db.height());</span>
+    } <span style="color: #008800; font-weight: bold">else</span> {
+      options.orientation <span style="color: #333333">=</span> <span style="background-color: #fff0f0">'horizontal'</span>;
+      options.maxHoriz <span style="color: #333333">=</span> <span style="color: #007020">Math</span>.round($(<span style="background-color: #fff0f0">'#crop-target'</span>).offset().left <span style="color: #333333">+</span> $(<span style="background-color: #fff0f0">'#crop-target'</span>).width() <span style="color: #333333">-</span> db.width());
+    }
+
+    db.dragSelecter(options);
+  })
+
+
+  $(<span style="background-color: #fff0f0">'#selectAreaModal'</span>).on(<span style="background-color: #fff0f0">'hidden.bs.modal'</span>, <span style="color: #008800; font-weight: bold">function</span> (e) {
+    <span style="color: #888888">// unset crop modal values. if the user chooses another photo to select, the old will still be attached.</span>
+    console.log(<span style="background-color: #fff0f0">'unsetting cro pform values...'</span>);
+    $(<span style="background-color: #fff0f0">'#crop-target'</span>).attr(<span style="background-color: #fff0f0">'src'</span>, <span style="background-color: #fff0f0">''</span>);
+    $(<span style="background-color: #fff0f0">'#scale'</span>).val(<span style="background-color: #fff0f0">''</span>);
+    $(<span style="background-color: #fff0f0">'#xValue'</span>).val(<span style="background-color: #fff0f0">''</span>);
+    $(<span style="background-color: #fff0f0">'#yValue'</span>).val(<span style="background-color: #fff0f0">''</span>);
+    $(<span style="background-color: #fff0f0">'#cropHeight'</span>).val(<span style="background-color: #fff0f0">''</span>);
+    $(<span style="background-color: #fff0f0">'#cropWidth'</span>).val(<span style="background-color: #fff0f0">''</span>);
+  });
+
+  $(<span style="background-color: #fff0f0">"#bike_photo"</span>).change(<span style="color: #008800; font-weight: bold">function</span> () {
+    <span style="color: #888888">// if the photo is oblong, we load it in a modal for cropping</span>
+    <span style="color: #008800; font-weight: bold">if</span>(simpleValidation(<span style="color: #008800; font-weight: bold">this</span>)) {
+      filePreview(<span style="color: #008800; font-weight: bold">this</span>.files[<span style="color: #0000DD; font-weight: bold">0</span>]);
+    }
+  });
+
+  <span style="color: #008800; font-weight: bold">function</span> isOblong(num) {
+    <span style="color: #008800; font-weight: bold">return</span> num <span style="color: #333333">&gt;</span> <span style="color: #6600EE; font-weight: bold">0.801</span>;
+  }
+
+  <span style="color: #888888">// TO-DO: have all of this validation come from the backend.</span>
+  <span style="color: #008800; font-weight: bold">function</span> simpleValidation(input) {
+    $(<span style="background-color: #fff0f0">'.alert'</span>).remove();
+    <span style="color: #008800; font-weight: bold">let</span> maxSize <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">5000000</span>; <span style="color: #888888">// from config/index</span>
+    <span style="color: #008800; font-weight: bold">let</span> minSize <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">100000</span>;
+    <span style="color: #888888">// lame</span>
+    <span style="color: #008800; font-weight: bold">let</span> acceptedFileTypes <span style="color: #333333">=</span> [<span style="background-color: #fff0f0">'image/jpeg'</span>, <span style="background-color: #fff0f0">'image/png'</span>];
+
+    <span style="color: #008800; font-weight: bold">if</span> (input.files <span style="color: #333333">&amp;&amp;</span> input.files[<span style="color: #0000DD; font-weight: bold">0</span>]) {  
+      <span style="color: #008800; font-weight: bold">if</span>(input.files[<span style="color: #0000DD; font-weight: bold">0</span>].type <span style="color: #333333">!==</span> <span style="background-color: #fff0f0">'image/jpeg'</span> <span style="color: #333333">&amp;&amp;</span> input.files[<span style="color: #0000DD; font-weight: bold">0</span>].type <span style="color: #333333">!==</span> <span style="background-color: #fff0f0">'image/png'</span>) {
+        appendAlert(<span style="background-color: #fff0f0">'Bike photo must be an image.'</span>);
+        <span style="color: #008800; font-weight: bold">return</span> <span style="color: #008800; font-weight: bold">false</span>;
+      }
+      <span style="color: #008800; font-weight: bold">if</span>(input.files[<span style="color: #0000DD; font-weight: bold">0</span>].size <span style="color: #333333">&lt;=</span> minSize) {
+        appendAlert(<span style="background-color: #fff0f0">'Image size must be at least '</span> <span style="color: #333333">+</span> minSize<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">1000</span> <span style="color: #333333">+</span> <span style="background-color: #fff0f0">'K (Yours is '</span> <span style="color: #333333">+</span> <span style="color: #007020">Math</span>.round(input.files[<span style="color: #0000DD; font-weight: bold">0</span>].size<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">1000</span>) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">'K). Please attach a larger photo of your bike.'</span>);
+        <span style="color: #008800; font-weight: bold">return</span> <span style="color: #008800; font-weight: bold">false</span>;
+      }
+      <span style="color: #008800; font-weight: bold">if</span>(input.files[<span style="color: #0000DD; font-weight: bold">0</span>].size <span style="color: #333333">&gt;</span> maxSize) {
+        appendAlert(<span style="background-color: #fff0f0">'Image size must be at less than &lt;nowrap&gt;'</span> <span style="color: #333333">+</span> maxSize<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">1000000</span> <span style="color: #333333">+</span> <span style="background-color: #fff0f0">' Megabytes&lt;/nowrap&gt; (Yours is '</span> <span style="color: #333333">+</span> (input.files[<span style="color: #0000DD; font-weight: bold">0</span>].size<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">1000000</span>).toFixed(<span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">'M). Please attach a smaller photo of your bike.'</span>);
+        <span style="color: #008800; font-weight: bold">return</span> <span style="color: #008800; font-weight: bold">false</span>;
+      }
+      <span style="color: #008800; font-weight: bold">return</span> <span style="color: #008800; font-weight: bold">true</span>;
+    } 
+  }
+
+  <span style="color: #008800; font-weight: bold">function</span> updateImgAreaSelectFields(selection) {
+    <span style="color: #008800; font-weight: bold">var</span> scale <span style="color: #333333">=</span> <span style="color: #007020">parseFloat</span>($(<span style="background-color: #fff0f0">'#scale'</span>).val());
+    <span style="color: #888888">// have these reflect the values of the actual photo size. This could get confusing.</span>
+    $(<span style="background-color: #fff0f0">'#xValue'</span>).val(<span style="color: #007020">parseInt</span>(selection.x1 <span style="color: #333333">*</span> scale));
+    $(<span style="background-color: #fff0f0">'#yValue'</span>).val(<span style="color: #007020">parseInt</span>(selection.y1 <span style="color: #333333">*</span> scale));
+    $(<span style="background-color: #fff0f0">'#cropWidth'</span>).val(<span style="color: #007020">parseInt</span>((selection.x2 <span style="color: #333333">-</span> selection.x1) <span style="color: #333333">*</span> scale));
+    $(<span style="background-color: #fff0f0">'#cropHeight'</span>).val(<span style="color: #007020">parseInt</span>((selection.y2 <span style="color: #333333">-</span> selection.y1) <span style="color: #333333">*</span> scale));
+
+    console.log(<span style="background-color: #fff0f0">'realistic?? x:'</span> <span style="color: #333333">+</span> $(<span style="background-color: #fff0f0">'#xValue'</span>).val() <span style="color: #333333">+</span> <span style="background-color: #fff0f0">' y:'</span> <span style="color: #333333">+</span> $(<span style="background-color: #fff0f0">'#yValue'</span>).val()<span style="color: #333333">+</span> <span style="background-color: #fff0f0">' cropWidth:'</span> <span style="color: #333333">+</span> $(<span style="background-color: #fff0f0">'#cropWidth'</span>).val() <span style="color: #333333">+</span> <span style="background-color: #fff0f0">' cropHeight:'</span> <span style="color: #333333">+</span> $(<span style="background-color: #fff0f0">'#cropHeight'</span>).val() );
+  }
+
+  <span style="color: #008800; font-weight: bold">function</span> onImgAreaSelect(img, selection) {
+    updateImgAreaSelectFields(selection);
+  }
+
+  <span style="color: #008800; font-weight: bold">function</span> prepareCropPoints(width, height) {
+    <span style="color: #008800; font-weight: bold">var</span> x1, y1, x2, y2;
+    <span style="color: #008800; font-weight: bold">var</span> scale <span style="color: #333333">=</span> height<span style="color: #333333">/</span>width;
+
+    <span style="color: #008800; font-weight: bold">if</span> (scale <span style="color: #333333">&gt;</span> <span style="color: #6600EE; font-weight: bold">0.75</span>) {
+      x1 <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>;
+      x2 <span style="color: #333333">=</span> width;
+      <span style="color: #008800; font-weight: bold">var</span> cropHeight <span style="color: #333333">=</span> width<span style="color: #333333">*</span><span style="color: #6600EE; font-weight: bold">0.75</span>;
+      <span style="color: #008800; font-weight: bold">var</span> offset <span style="color: #333333">=</span> (height <span style="color: #333333">-</span> cropHeight)<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">2</span>;
+      y1 <span style="color: #333333">=</span> offset;
+      y2 <span style="color: #333333">=</span> offset <span style="color: #333333">+</span> cropHeight; 
+    } <span style="color: #008800; font-weight: bold">else</span> {
+      y1 <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>;
+      y2 <span style="color: #333333">=</span> height;
+      <span style="color: #008800; font-weight: bold">var</span> cropWidth <span style="color: #333333">=</span> height<span style="color: #333333">*</span><span style="color: #6600EE; font-weight: bold">1.33333333</span>;
+      <span style="color: #008800; font-weight: bold">var</span> offset <span style="color: #333333">=</span> (width <span style="color: #333333">-</span> cropWidth)<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">2</span>;
+      x1 <span style="color: #333333">=</span> offset;
+      x2 <span style="color: #333333">=</span> offset <span style="color: #333333">+</span> cropWidth;
+    }
+
+    <span style="color: #008800; font-weight: bold">return</span> {
+      x1<span style="color: #333333">:</span> <span style="color: #007020">Math</span>.round(x1),
+      y1<span style="color: #333333">:</span> <span style="color: #007020">Math</span>.round(y1),
+      x2<span style="color: #333333">:</span> <span style="color: #007020">Math</span>.round(x2),
+      y2<span style="color: #333333">:</span> <span style="color: #007020">Math</span>.round(y2),
+    }
+  }
+
+  <span style="color: #008800; font-weight: bold">function</span> addDraggableBox(el, options) {
+    <span style="color: #008800; font-weight: bold">if</span>($(<span style="background-color: #fff0f0">'.drag-selecter'</span>).length <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">0</span>) {
+      $(<span style="background-color: #fff0f0">'.drag-selecter'</span>).remove();
+    }
+    <span style="color: #008800; font-weight: bold">var</span> box <span style="color: #333333">=</span> $(<span style="background-color: #fff0f0">'&lt;div class="drag-selecter"&gt;&lt;/div&gt;'</span>);
+    box.css(<span style="background-color: #fff0f0">'width'</span>, options.x2 <span style="color: #333333">-</span> options.x1);
+    box.css(<span style="background-color: #fff0f0">'height'</span>, options.y2 <span style="color: #333333">-</span> options.y1);
+    box.css(<span style="background-color: #fff0f0">'top'</span>, options.y1);
+    box.css(<span style="background-color: #fff0f0">'left'</span>, options.x1);
+    $(el).parent().append(box);
+    <span style="color: #008800; font-weight: bold">return</span> box;
+  }
+
+});
+</pre>
+
+</body>
+
+</html>

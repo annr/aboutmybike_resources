@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<style>
+.drag-element {
+  border: 1px solid lime; 
+  width: 630px;
+  height: 473px;
+  position: absolute;
+}
+
+.crop-target-wrapper {
+  position: relative;
+  border: 2px solid magenta;
+}
+</style>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+<script src="drags.js"></script>
+
+<script>
+
+$(document).ready(function() {
+  $('#dragElement').drags({
+    container: '#crop-target'
+  });
+});
+
+
+</script>
+</head>
+
+<body>
+
+<br><br>
+<div class="crop-target-wrapper">
+    <div id="dragElement" class="drag-element" draggable="true" ondragstart="dragstart_handler(event);"></div>
+    <img id="crop-target" alt="your image" src="./sample_photos/a.png" />
+</div>
+
+</body>
+
+
+</html>
+
